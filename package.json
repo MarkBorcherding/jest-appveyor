@@ -1,0 +1,15 @@
+{
+  "name": "jest-appveyor",
+  "version": "1.0.0",
+  "description": "A realtime Jest reporter for Appveyor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "jest",
+    "appveyor"
+  ],
+  "author": "markborcherding@gmail.com",
+  "license": "MIT"
+}
