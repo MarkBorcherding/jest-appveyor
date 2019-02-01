@@ -2,8 +2,9 @@
   "name": "jest-appveyor",
   "version": "1.0.0",
   "description": "A realtime Jest reporter for Appveyor",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -11,5 +12,8 @@
     "appveyor"
   ],
   "author": "markborcherding@gmail.com",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.3.1"
+  }
 }
