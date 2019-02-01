@@ -14,6 +14,8 @@
   "author": "markborcherding@gmail.com",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "@types/node": "^10.12.21",
     "typescript": "^3.3.1"
   }
 }

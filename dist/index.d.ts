@@ -1,2 +1,5 @@
-declare const _default: (a: string) => string;
-export default _default;
+/// <reference types="jest" />
+declare class AppveyorReporter implements jest.Reporter {
+    onTestResult(test: jest.Test, testResult: jest.TestResult): void;
+}
+export default AppveyorReporter;
