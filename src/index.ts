@@ -1,21 +1,18 @@
 import { request } from 'http';
 
 const APPVEYOR_API_URL = process.env.APPVEYOR_API_URL
+const ADD_TESTS_IN_BATCH = "api/tests/batch";
 
 const isError = (r: jest.AssertionResult) => (r.failureMessages && r.failureMessages.length > 0)
 
-const errorDetails = (msg:string) => {
-    const  [message, ...stack] = msg.split("\n")
+const errorDetails = (testResult: jest.AssertionResult) => {
+    if(!isError(testResult)) { return; }
+    const  [message, ...stack] = testResult.failureMessages[0].split("\n"); 
     return [message, stack.join("\n")]
 }
 
 const toAppveyorTest = (fileName: string) => (testResult: jest.AssertionResult) => {
-
-    const [errorMessage, errorStack] =
-        isError(testResult) ? 
-            errorDetails(testResult.failureMessages[0]) :
-            [undefined, undefined];
-
+    const [errorMessage, errorStack] = errorDetails(testResult) || [undefined, undefined];
     return {
         testName: testResult.fullName,
         testFramework: 'Jest',
@@ -29,14 +26,12 @@ const toAppveyorTest = (fileName: string) => (testResult: jest.AssertionResult) 
     };
 }
 
-
 class AppveyorReporter implements jest.Reporter {
 
     onTestResult(test: jest.Test, testResult: jest.TestResult) {
         if(!APPVEYOR_API_URL) { return }
 
         const results = testResult.testResults.map(toAppveyorTest(test.path));
-        const url = APPVEYOR_API_URL + "api/tests/batch";
         const json = JSON.stringify(results);
         const options = {
             method: 'POST',
@@ -45,7 +40,7 @@ class AppveyorReporter implements jest.Reporter {
                 'Content-Length': json.length
             }
         };
-        const req = request(url, options)
+        const req = request(APPVEYOR_API_URL + ADD_TESTS_IN_BATCH, options)
         req.on("error", (error) => console.error("Unable to post test result", { error }));
         req.write(json);
         req.end();
