@@ -26,7 +26,17 @@ const toAppveyorTest = (fileName: string) => (testResult: jest.AssertionResult) 
     };
 }
 
+interface AppveyorReporterOptions { }
+
 class AppveyorReporter implements jest.Reporter {
+
+    _globalConfig: jest.GlobalConfig;
+    _options: AppveyorReporterOptions;
+
+    constructor(globalConfig: jest.GlobalConfig, options: AppveyorReporterOptions) {
+        this._globalConfig = globalConfig;
+        this._options = options;
+    }
 
     onTestResult(test: jest.Test, testResult: jest.TestResult) {
         if(!APPVEYOR_API_URL) { return }
@@ -48,5 +58,4 @@ class AppveyorReporter implements jest.Reporter {
 
 }
 
-
-export default AppveyorReporter;
+module.exports = AppveyorReporter

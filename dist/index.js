@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = require("http");
-var APPVEYOR_API_URL = process.env.APPVEYOR_API_URL;
-var ADD_TESTS_IN_BATCH = "api/tests/batch";
-var isError = function (r) { return (r.failureMessages && r.failureMessages.length > 0); };
-var errorDetails = function (testResult) {
+const http_1 = require("http");
+const APPVEYOR_API_URL = process.env.APPVEYOR_API_URL;
+const ADD_TESTS_IN_BATCH = "api/tests/batch";
+const isError = (r) => (r.failureMessages && r.failureMessages.length > 0);
+const errorDetails = (testResult) => {
     if (!isError(testResult)) {
         return;
     }
-    var _a = testResult.failureMessages[0].split("\n"), message = _a[0], stack = _a.slice(1);
+    const [message, ...stack] = testResult.failureMessages[0].split("\n");
     return [message, stack.join("\n")];
 };
-var toAppveyorTest = function (fileName) { return function (testResult) {
-    var _a = errorDetails(testResult) || [undefined, undefined], errorMessage = _a[0], errorStack = _a[1];
+const toAppveyorTest = (fileName) => (testResult) => {
+    const [errorMessage, errorStack] = errorDetails(testResult) || [undefined, undefined];
     return {
         testName: testResult.fullName,
         testFramework: 'Jest',
@@ -24,28 +24,29 @@ var toAppveyorTest = function (fileName) { return function (testResult) {
         StdOut: "",
         StdErr: ""
     };
-}; };
-var AppveyorReporter = /** @class */ (function () {
-    function AppveyorReporter() {
+};
+class AppveyorReporter {
+    constructor(globalConfig, options) {
+        this._globalConfig = globalConfig;
+        this._options = options;
     }
-    AppveyorReporter.prototype.onTestResult = function (test, testResult) {
+    onTestResult(test, testResult) {
         if (!APPVEYOR_API_URL) {
             return;
         }
-        var results = testResult.testResults.map(toAppveyorTest(test.path));
-        var json = JSON.stringify(results);
-        var options = {
+        const results = testResult.testResults.map(toAppveyorTest(test.path));
+        const json = JSON.stringify(results);
+        const options = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': json.length
             }
         };
-        var req = http_1.request(APPVEYOR_API_URL + ADD_TESTS_IN_BATCH, options);
-        req.on("error", function (error) { return console.error("Unable to post test result", { error: error }); });
+        const req = http_1.request(APPVEYOR_API_URL + ADD_TESTS_IN_BATCH, options);
+        req.on("error", (error) => console.error("Unable to post test result", { error }));
         req.write(json);
         req.end();
-    };
-    return AppveyorReporter;
-}());
-exports.default = AppveyorReporter;
+    }
+}
+module.exports = AppveyorReporter;
